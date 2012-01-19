@@ -50,6 +50,7 @@ blockquote, q {
 blockquote:before, blockquote:after,
 q:before, q:after {
     content: '';
+    
     content: none;
 }
 
@@ -109,8 +110,22 @@ a:hover {
 }
 
 h1 {
-  margin-top: 200px;
+  margin-top: 150px;
   text-align: center;
+  font-size: 56px;
+  margin-bottom: 20px;
+}
+
+ul {
+  list-style-type: circle;
+}
+
+li {
+  margin-top: 10px;
+}
+
+q {
+
 }
 
 #presentation-title {
