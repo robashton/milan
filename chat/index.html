@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+        
+          var addMessage = function(data) {
+            $('#content').append(
+              $('<p/>').text(data)
+            );      
+          };
+        
+          var socket = io.connect();
+          socket.on('chat', addMessage);
+
+          $('#send').click(function() {
+            var message = $('#message').val();
+            $('#message').val('');
+            addMessage(message);
+            socket.emit('chat', message);          
+          });
+          
+        
+        
+        });
+    </script>
+  </head>
+  <body>
+    <input type="text" id="message" /><input type="button" id="send" value="send"/>
+    <div id="content">
+    
+    </div>
+  </body>
+</html>

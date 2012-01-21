@@ -1,0 +1,54 @@
+- Start off talking about scope
+  - WebGL, NodeJS and WebSockets
+  
+- WebGL
+  - Hardware accelerated 3D Graphics in the browser
+    - "Her‎e is some work to do, go and do it"
+    - JavaScript performance is less importance
+    
+  - API maps onto the OpenGL interfaces we know and love
+  - API is low level
+  - Libraries exist to make it easier
+    - ThreeJS
+    - PhiloGL
+    - GLGE
+  
+  - Structured types (new idea for JavaScript)
+    - JavaScript performance is still a bit important
+    - Arrays are not contiguous in JavaScript (image)
+    - Float32Array, Int16Array, Int32Array
+    - Demo (loop)
+    
+  - Drawing some triangles
+    - Triangles are the basic building block
+    - Upload buffers containing lists of positions
+    - Programs are executed transforming 3D positions to screen coords
+    - Programs are then run to determine pixel colours
+    - Demo
+      - Create a triangle
+      - Upload them
+      - Write a vertex shader
+      - Write a pixel shader
+      - glMatrix
+      
+  - Taking advantage of the GPU 
+    - Particle system example
+  
+- NodeJS
+  - Server side JavaScript
+  - Run exactly the same code on the server as on the client
+  - Async APIs from the ground up
+  - Read a file (example)
+  - Modules (CommonJS)
+  - Large JS Projects no problem with a decent module system
+  
+- WebSockets
+  - Protocol for realtime web communication
+  - Ideal for sending messages between clients
+
+- Put them together
+  - We have the means to create amazing things
+  - Picture of network, JavaScript EVERYWHERE
+  - It's the future
+
+- Hoverbattles example

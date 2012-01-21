@@ -11,7 +11,7 @@
     <div id="impress" class="impress-not-supported">
 
         <div id="presentation-title" class="step slide" data-x="-1000" data-y="0">
-            <h1>WebGL and NodeJS... WOW!!</h1>
+            <h1>WebGL, NodeJS and WebSockets</h1>
         </div>
         
          <div class="step slide" data-x="0" data-y="0">
@@ -23,23 +23,523 @@
           </ul>
         </div>
         
-        <div class="step slide" data-x="1000" data-y="0">
+        <div class="step slide" data-x="3000" data-y="0">
+          <h1>So, WebGL</h1>
+          <ul>
+            <li>  OpenGL ES 2.0 API</li>
+            <li>+ HTML5 Canvas</li>
+            <li>= 3D games for the browser</li>
+          </ul>
+        </div>
+        
+        <div class="step slide" data-x="4000" data-y="0">
+          <h1>"My first WebGL Application"</h1>
+        </div>
+        
+        <div class="step code" data-x="4000" data-y="0">
+          <h2>Getting a WebGL context</h2>
+          <p>Not so difficult</p>
+          <pre>
+var canvas = document.getElementById('basic-webgl');
+var gl = canvas.getContext('experimental-webgl');
+          </pre>       
+        </div>
+        
+        <div class="step code" data-x="4000" data-y="0">
+          <h2>Initial set up</h2>
+          <p>Setting the colour we want the backbuffer cleared to</p>
+          <pre>
+gl.clearColor(0.0, 0.0, 0.0, 1.0);
+          </pre>       
+        </div>
+        
+        <div class="step code" data-x="4000" data-y="0">
+          <h2>Render loop</h2>
+          <p>For example</p>
+          <pre>
+setInterval(function() {
+
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+          
+}, 250);  
+          </pre>       
+        </div>
+        
+        <div class="step" data-x="4000" data-y="0">
+          <canvas width="640" height="480" id="basic-webgl">
+        
+          </canvas>
+        </div>
+        
+        <div class="step slide" data-x="5000" data-y="0">
+          <h1>How about drawing something?</h1>     
+          <p>Well, first we need some basic concepts</p>
+        </div>
+        
+        <div class="step slide" data-x="10000" data-y="0">
+          <h1>Buffers</h1>   
+          <ul>
+            <li>Many kinds of buffer</li>
+            <li>Created for communication with GPU</li>
+            <li>For example, an array of vertex positions</li>
+          </ul>     
+        </div>
+        
+        <div class="step code" data-x="10000" data-y="0">
+          <h2>A triangle</h2>
+          <pre>
+var vertices = [
+   0.0, 0.0, 0.0,
+   1.0, 0.0, 0.0,
+   0.0, 1.0, 0.0
+];
+
+var vertexBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);  
+          </pre>   
+        </div>
+        
+        <div class="step slide" data-x="11000" data-y="0">
+          <h1>Matrices</h1>   
+          <ul>
+            <li>Sorry... maths</li>
+            <li>Used for transformations</li>
+            <li>Can hide most of the maths with glMatrix (third party library)</li>
+            <li><a href="https://github.com/toji/gl-matrix">github.com/toji/gl-matrix</a></li>
+          </ul>     
+        </div>
+        
+        <div class="step code" data-x="12000" data-y="0">
+          <h2>A basic world matrix</h2>
+          <p>Used to transform coordinates from 'model space' into 'world space'</p>
+          <pre>
+var world = mat4.create();
+mat4.identity(world); // Set to identity
+mat4.translate(world, [0, 0, -10]); // Translate back 10 units
+mat4.rotate(world, Math.PI/2, [0, 1, 0]); // Rotate 90 degrees around the Y axis
+mat4.scale(world, [2, 2, 2]); // Scale by 200%
+          </pre>   
+        </div>
+        
+         <div class="step code" data-x="13000" data-y="0">
+          <h2>A basic view matrix</h2>
+          <p>Used to transform coordinates from 'world space' into 'camera space'</p>
+          <pre>
+var view = mat4.create();
+
+// Look at 0,0,0
+// From 0,0,-100
+// 'Up' is the Y axis
+mat4.lookAt([0, 0, 0], [0, 0, -100], [0, 1, 0], view);
+          </pre>   
+        </div>
+        
+        <div class="step code" data-x="14000" data-y="0">
+          <h2>A basic projection matrix</h2>
+          <p>Used to project coordinates into screen space</p>
+          <pre>
+var projection = mat4.create();
+
+// Field of view is 45 degrees
+// Aspect ratio is 4:3
+// Clamp viewing distance from 1.0 to 100
+mat4.perspective(45, 4/3, 1, 100, projection);
+          </pre>   
+        </div>         
+        
+        <div class="step slide" data-x="15000" data-y="0">
+          <h1>Quick maths lesson</h1>
+          <p>Given a position 'P' on a model, as a vector (x,y,z)</p>
+          <ul>
+            <li>Multiply by world matrix to get its position in the game world</li>
+            <li>Multiply that by the view matrix to get its position relative to camera</li>
+            <li>Multiply that by projection matrix to get position on screen</li>
+          </ul>       
+        </div>
+        
+        <div class="step slide" data-x="10000" data-y="1500">
+          <h1>Shaders</h1>
+          <ul>
+            <li>Two types of shader, <strong>vertex</strong> and <strong>fragment</strong></li>
+            <li>Programs that operate on data that has been sent to the GPU</li>
+            <li>Written in GLSL</li>
+          </ul>        
+        </div>
+        
+        <div class="step code" data-x="11000" data-y="1500">
+          <h2>A vertex shader</h2>
+          <p>For each item in an uploaded buffer, execute this</p>
+          <pre>
+attribute vec3 aVertexPosition; // The position of an uploaded vertex
+uniform mat4 uProjection;       // An uploaded projection matrix
+uniform mat4 uView;             // An uploaded view matrix
+uniform mat4 uWorld;            // An uploaded world matrix
+
+void main(void){
+  gl_Position =   uProjection * uView * uWorld * vec4(aVertexPosition, 1.0);
+}
+          </pre>       
+        </div>
+        
+         <div class="step code" data-x="12000" data-y="1500">
+          <h2>A fragment shader</h2>
+          <p>For each pixel being rendered to the screen</p>
+          <pre>
+void main(void) {
+
+  // White
+  gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+}
+          </pre>       
+        </div>
+        
+         <div class="step code" data-x="13000" data-y="1500">
+          <h2>Building a shader</h2>
+          <p>Compiling a vertex shader</p>
+          <pre>
+var vertexText = document.getElementById('triangles-vertex').innerText;
+var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+gl.shaderSource(vertexShader, vertexText);
+gl.compileShader(vertexShader);
+          </pre>       
+        </div>  
+        
+         <div class="step code" data-x="14000" data-y="1500">
+          <h2>Building a shader</h2>
+          <p>Compiling a fragment shader</p>
+          <pre>
+var fragmentText = document.getElementById('triangles-fragment').innerText;
+var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+gl.shaderSource(fragmentShader, fragmentText);
+gl.compileShader(fragmentShader);
+          </pre>       
+        </div>
+        
+         <div class="step code" data-x="15000" data-y="1500">
+          <h2>Building a shader</h2>
+          <p>Putting the shader together</p>
+          <pre>
+var program = gl.createProgram(); 
+
+gl.attachShader(program, vertexShader);
+gl.attachShader(program, fragmentShader);
+gl.linkProgram(program);
+          </pre>       
+        </div>
+        
+         <div class="step code" data-x="16000" data-y="1500">
+          <h2>Building a shader</h2>
+          <p>Extracting the inputs from the compiled shader</p>
+          <pre>
+var aVertexPosition = gl.getAttribLocation(program, 'aVertexPosition');
+var uProjection = gl.getUniformLocation(program, 'uProjection');
+var uView = gl.getUniformLocation(program, 'uView');
+var uWorld = gl.getUniformLocation(program, 'uWorld');
+          </pre>       
+        </div>
+        
+        <div class="step slide" data-x="10000" data-y="3000">
+          <h1>Nearly there</h1>
+          <p>All of that was just loading and setting up!!</p>
+          <p>Now our render method...</p>
+        </div>
+        
+        <div class="step code" data-x="11000" data-y="3000">
+          <h2>Setting the input variables</h2>
+          <p>We have the locations, we've created the matrices so..</p>
+          <pre>
+gl.useProgram(program);
+
+gl.uniformMatrix4fv(uProjection, false, projection);
+gl.uniformMatrix4fv(uView, false, view);
+gl.uniformMatrix4fv(uWorld, false, world);
+          </pre>       
+        </div>
+        
+        <div class="step code" data-x="12000" data-y="3000">
+          <h2>Uploading the buffer</h2>
+          <p>Our buffer contains three positions, each containing an X, Y and Z</p>
+          <pre>
+gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+gl.vertexAttribPointer(aVertexPosition, 3, gl.FLOAT, false, 0, 0);
+gl.enableVertexAttribArray(aVertexPosition);
+          </pre>       
+        </div>
+        
+        <div class="step code" data-x="13000" data-y="3000">
+          <h2>Rendering</h2>
+          <p>We've uploaded all the info to the GPU, we just need to tell it what to do</p>
+          <pre>
+gl.drawArrays(gl.TRIANGLE_STRIP, 0, 3);
+          </pre>       
+        </div>
+               
+        <div class="step" data-x="14000" data-y="3000">
+          <canvas width="640" height="480" id="triangles-webgl">
+        
+          </canvas>
+        </div>  
+        
+         <div class="step code" id="particles-code" data-x="15000" data-y="3000">
+          <h2>Doing the heavy lifting on the GPU</h2>
+          <pre class="small">
+attribute vec2 aVertexPosition;
+attribute vec2 aVertexVelocity;
+attribute vec3 aColour;
+
+uniform float uTime;
+uniform mat4 uProjection;
+uniform mat4 uView;
+uniform mat4 uWorld;
+
+varying vec3 vColour;
+
+void main(void){
+  gl_PointSize = 1.1;
+  vColour = aColour;
+  float x = aVertexPosition.x + (uTime * aVertexVelocity.x);
+  float y = aVertexPosition.y + (uTime * aVertexVelocity.y);
+    
+  
+  gl_Position =  uProjection * uView * uWorld * vec4(x, y, 0.0, 1.0);
+}
+          </pre>
+        </div>  
+        
+         <div class="step" id="particles" data-x="16000" data-y="3000">
+          <canvas width="640" height="480" id="particles-webgl">
+        
+          </canvas>
+        </div>  
+        
+        <div id="overview" class="step" data-x="13000" data-y="1500" data-scale="8">
+        </div>   
+          
+        <div class="step slide" data-x="0" data-y="1500">
+          <h1>So we made a triangle</h1>
+          <p>WebGL is a low level API</p>
+          <p>A lot of the code is repetitive</p>
+          <p>Either build your own abstractions, or go third party</p>
+        </div>
+        
+        <div class="step slide" data-x="1000" data-y="1500">
+          <h1>Third party favourites</h1>
+          <ul>
+            <li>Three.js - a general purpose graphics library</li>
+            <li>GLGE - game oriented WebGL abstractions</li>
+            <li>PhiloGL - Visualisation oriented WebGL abstractions</li>
+          </ul>
+        </div>
+        
+        <div class="step" data-x="2000" data-y="1500">
+          <h1>So, we've written a game in WebGL... what next?</h1>
+        </div>
+        
+        <div class="step slide" data-x="2000" data-y="1500">
           <h1>NodeJS</h1>
           <ul>
             <li>Server side JavaScript on top of the V8 engine.</li>
-            <li>Node.js is an event-driven, non-blocking I/O model that makes it lightweight and efficient</li>
+            <li>Node.js has an event-driven, non-blocking I/O model that makes it lightweight and efficient</li>
             <li>Perfect for data-intensive <strong>real-time</strong> applications that run across <strong>distributed devices</strong></li>
           </ul>
         </div>
         
-        <div class="step slide" data-x="2000" data-y="0">
-          <h1>Wait what?</h1>
+        <div class="step slide" data-x="3000" data-y="1500">
+          <h1>NodeJS</h1>
           <ul>
-            <li>Write game code in JavaScript for the browser</li>
-            <li>
+            <li>Async by default</li>
+            <li>Ideal for building network apps with high concurrency</li>
           </ul>
         </div>
         
+        <div class="step code" data-x="4000" data-y="1500">
+          <h2>Hello world</h2>
+          <p>The typical example</p>
+          <pre>
+var http = require('http');
+http.createServer(function (req, res) {
+  res.writeHead(200, {'Content-Type': 'text/plain'});
+  res.end('Hello World\n');
+})
+.listen(1337);
+          </pre>
+        </div>
+        
+        <div class="step code" data-x="4000" data-y="1500">
+          <h2>Callbacks callbacks callbacks</h2>
+          <p>Hello world from a text file</p>
+          <pre>
+var http = require('http');
+var fs = require('fs');
+http.createServer(function (req, res) {
+  fs.readFile('message.txt', function(data) {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end(data);
+  });
+})
+.listen(1337);
+          </pre>
+        </div>
+        
+        
+        <div class="step slide" data-x="5000" data-y="1500">
+          <h1>Websockets</h1>
+          <ul>
+            <li>"WebSockets is a technique for two-way communication over one (TCP) socket, a type of PUSH technology."</li>
+            <li>(Translation: High performance, low latency, for real-time network apps)</li>
+          </ul>
+        </div>
+                
+        <div class="step slide" data-x="6000" data-y="1500">
+          <h1>npm install...</h1>
+          <ul>
+            <li>NPM is the NuGet of NodeJS</li>
+            <li>The most popular socket library is 'socket.io'</li>            
+          </ul>
+        </div>
+        
+        <div class="step" data-x="7000" data-y="1500">
+          <h1>npm install socket.io</h1>
+        </div>
+        
+        <div class="step code" data-x="10000" data-y="5000">
+          <h2>On the server</h2>
+          <p>Import Socket.io, tell it to listen on a port</p>
+          <pre>
+var socketio = require('socket.io');
+var io = socketio.listen(80);
+io.sockets.on('connection', hookSocketEvents);
+          </pre>
+        </div>
+        
+        <div class="step code" data-x="11000" data-y="5000">
+          <h2>On the client</h2>
+          <p>Import Socket.io, tell it to connect to a port</p>
+          <pre>
+&lt;script type="text/javascript" src="socket.io/socket.io.js"&gt;&lt;/script&gt;
+var socket = io.connect();
+          </pre>
+        </div>
+        
+        <div class="step code" data-x="12000" data-y="5000">
+          <h2>On the client</h2>
+          <p>Send messages to the server</p>
+          <pre>
+$('#send').click(function() {
+  var message = $('#message').val();
+  $('#message').val('');
+  socket.emit('chat', message);          
+});
+          </pre>
+        </div>
+        
+        <div class="step code" data-x="10000" data-y="6000">
+          <h2>On the server</h2>
+          <p>Listen to messages from each client and send them on</p>
+          <pre>
+var hookSocketEvents = function(socket) {
+  socket.on('chat', function (data) {
+    socket.broadcast.emit('chat', data);
+  });
+};
+          </pre>
+        </div>
+        
+        <div class="step code" data-x="11000" data-y="6000">
+          <h2>On the client</h2>
+          <p>Listen to messages from server and process them</p>
+          <pre>
+socket.on('chat', function(data) {
+  $('#content').append(
+    $('&lt;p/&gt;').text(data)
+  );     
+});
+          </pre>
+        </div>
+        
+        
+        <div id="overview2" class="step" data-x="11000" data-y="5400" data-scale="4.0">
+          <h2>Easy peasy, network squeasy</h2>
+        </div>  
+        
+        <div class="step" data-x="10000" data-y="6000">
+          <h1>But what's this got to do with WebGL?</h1>
+        </div>
+               
+        <div class="step" data-x="10000" data-y="7000">
+          <h1>A note on sharing code</h1>
+        </div>
+        
+        <div class="step code" data-x="11000" data-y="7000">
+          <h2>NodeJS uses CommonJS to manage dependencies</h2>
+          <p>MyModule.js</p>
+          <pre>            
+var MyClass = function() {
+  // stuff
+};
+MyClass.prototype = {
+  // stuff
+};
+module.exports = MyClass;
+          </pre>
+        </div>
+        
+        <div class="step code" data-x="11000" data-y="7000">
+          <h2>NodeJS uses CommonJS to manage dependencies</h2>
+          <p>MyConsumer.js</p>
+          <pre>            
+            var MyClass = require('./mymodule');
+            var instance = new MyClass();
+          </pre>
+        </div>
+        
+        <div class="step slide" data-x="10000" data-y="8000">
+          <h1>This does not work on the browser</h1>
+          <ul>
+            <li>Can use 'stitch' to merge all the files written in CommonJS</li>
+            <li>Or can elect to use something other than CommonJS</li>
+          </ul>
+        </div>     
+        
+        <div class="step code" data-x="10000" data-y="9000">
+          <h2>A (brief) look at AMD</h2>
+          <p>MyModule.js</p>
+          <pre>
+define(function(require) {
+ var MyClass = function() {
+    // stuff
+  };
+  MyClass.prototype = {
+    // stuff
+  };  
+  return MyClass;      
+});
+          </pre>
+        </div>
+        
+        <div class="step code" data-x="10000" data-y="9000">
+          <h2>A (brief) look at AMD</h2>
+          <p>MyConsumer.js</p>
+          <pre>
+ define(function(require) {
+  var MyClass = require('./mymodule');
+  var instance = new MyClass(); 
+ });           
+          </pre>
+        </div>
+        
+        <div class="step summary" id="ending" data-x="10000" data-y="10000" data-scale="1">
+          <h2>The Modern Gaming Experience</h2>
+          <ul>
+            <li>No downloads required</li>
+            <li>Target games directly for the browser</li>
+            <li>Build in interactivity with other players</li>
+            <li>Run the same code on the server and client</li>
+            <li>Winning.</li>
+          </ul>          
+        </div>
 
       <!--
           So to make a summary of all the possible attributes used to position presentation steps, we have:
@@ -51,13 +551,62 @@
               are exactly the same;
           * `data-scale` -- defines the scale of step element; default value is 1
       -->
-      <div id="overview" class="step" data-x="3000" data-y="1500" data-scale="10">
-      </div>
-
 
     </div>
+    
+    <script src="jquery.js"></script>
+    <script src="glmatrix.js"></script>
     <script src="impress.js"></script>
+    <script src="demos/basicwebgl.js"></script>
+    <script src="demos/triangles.js"></script>
+    <script src="demos/particles.js"></script>
+    
+    <div id="triangles-vertex" style="display: none;">attribute vec3 aVertexPosition;
+uniform mat4 uProjection;
+uniform mat4 uView;
+uniform mat4 uWorld;
 
+void main(void){
+  gl_Position =  uProjection * uView * uWorld * vec4(aVertexPosition, 1.0);
+}</div>
+    
+    <div id="triangles-fragment" style="display: none;">#ifdef GL_ES
+precision highp float;
+#endif
+void main(void) {
+  gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+}</div>
+
+    <div id="particles-vertex" style="display: none;">attribute vec2 aVertexPosition;
+attribute vec2 aVertexVelocity;
+attribute vec3 aColour;
+uniform float uTime;
+uniform mat4 uProjection;
+uniform mat4 uView;
+uniform mat4 uWorld;
+
+varying vec3 vColour;
+
+void main(void){
+  gl_PointSize = 1.1;
+  vColour = aColour;
+  float x = aVertexPosition.x + (uTime * aVertexVelocity.x);
+  float y = aVertexPosition.y + (uTime * aVertexVelocity.y);
+    
+  
+  gl_Position =  uProjection * uView * uWorld * vec4(x, y, 0.0, 1.0);
+}</div>
+    
+    <div id="particles-fragment" style="display: none;">#ifdef GL_ES
+precision highp float;
+#endif
+
+varying vec3 vColour;
+
+void main(void) {
+  gl_FragColor = vec4(vColour * 2.0, 1.0);
+}</div>
+   
   </body>
 
 </html>

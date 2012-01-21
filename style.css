@@ -66,7 +66,7 @@ body {
     min-height: 740px;
 
     background: rgb(215, 215, 215);
-    background: -webkit-gradient(radial, 0% 0%, 0, 100% 100%, 500, from(rgb(240, 150, 150)), to(rgb(190, 190, 190)));
+    background: -webkit-gradient(radial, 0% 0%, 0, 100% 100%, 500, from(rgb(240, 240, 240)), to(rgb(190, 190, 190)));
     -webkit-font-smoothing: antialiased;
 }
 
@@ -93,7 +93,7 @@ a:hover {
     text-shadow: -1px -1px 2px rgba(100,100,100,0.5);
 }
 .step {
-    width: 900px;
+    width: 700px;
     padding: 40px;
     -webkit-box-sizing: border-box;
     font-family: 'PT Serif', georgia, serif;
@@ -106,14 +106,15 @@ a:hover {
 }
 
 .step:not(.active) {
-    opacity: 0.05;
+    opacity: 0.0;
 }
 
 h1 {
-  margin-top: 150px;
+  margin-top: 80px;
   text-align: center;
   font-size: 56px;
   margin-bottom: 20px;
+  line-height: 2.0;
 }
 
 ul {
@@ -128,17 +129,78 @@ q {
 
 }
 
+.code pre {
+  font-size: 18px;
+}
+
+.code pre.small {
+  font-size: 14px;
+}
+
+.code {
+  width: 700px;
+  height: 500px;
+  background-color: #FFF;
+}
+.code h2 {
+  font-size: 22px;
+  color: #555;
+}
+.code p {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+#overview {
+    z-index: -1;
+    padding: 0;
+}
+
+#impress.step-overview .step {
+    opacity: 1;
+    cursor: pointer;
+}
+
+#overview2 {
+    z-index: -1;
+    padding: 0;
+}
+#ending {
+  z-index: -=1;
+  padding: 0;
+}
+
+#ending {
+ 
+}
+
+#impress.step-ending .step {
+    opacity: 1.0;
+    cursor: pointer;
+}
+
+#impress.step-overview2 .step {
+    opacity: 1;
+    cursor: pointer;
+}
+
 #presentation-title {
     opacity: 1;    
     -webkit-transition: opacity 1s 5s, -webkit-transform 0.5s;    
     -webkit-transform: translateY(0px);
 }
 
+.summary {
+  font-size: 26px;
+  margin-left: 100px;
+}
+
 
 .slide {
     display: block;
-    width: 900px;
-    height: 700px;
+    width: 700px;
+    height: 500px;
     padding: 40px 60px;
     border-radius: 10px;
     background-color: white;
@@ -147,7 +209,7 @@ q {
     font-family: 'Open Sans', Arial, sans-serif;
     color: rgb(102, 102, 102);
     text-shadow: 0 2px 2px rgba(0, 0, 0, .1);
-    font-size: 30px;
+    font-size: 22px;
     line-height: 36px;
     letter-spacing: -1px;
 }
